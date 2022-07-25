@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -26,7 +27,7 @@ eDirection dir;
 
 void printScore()
 {
-    std::cout << "      ///" << "Score:" << score << "\\\\\\" << std::endl;
+    std::cout << "      ///" << "Score:" << score << "\\\\\\";
 }
 
 void printLines(int x, char y)
@@ -35,9 +36,7 @@ void printLines(int x, char y)
     {
         std::cout << " ";
         for(int j = 0; j < 36; j++)
-        {
             std::cout << y;
-        }
         std::cout << std::endl;
     }
 }
@@ -49,17 +48,25 @@ int getInput()
     return input;
 }
 
+void getScore()
+{
+    std::ifstream MyFile("score.txt");
+    while (getline (MyFile, scores)) // Output the text from the file //
+        std::cout << "        " << scores << std::endl;
+}
+
 void showScores()
 {
     system("cls");
     printLines(8,'#');
     printLines(1,' ');
-    std::cout << " ########## HIGHEST SCORES ##########" << std::endl;
+    std::cout << " ########## HIGHEST SCORE ###########" << std::endl;
     printLines(1,' ');
     getScore();
+    printLines(1, ' ');
     printLines(8,'#');
     //////////////////////////////////////////
-    //  TO DO::Read top scores from a file  //
+    //  To Do: Read top scores from a file  //
     //////////////////////////////////////////
     system("pause");
     runMenu();
@@ -69,7 +76,6 @@ void printMenu()
 {
     std::cout << R"(
 ################SNAKE#################
-#               ______               #
 #         _.-""      ""-._           #
 #      .-'                `-.        #
 #    .'      __.----.__      `.      #
@@ -89,7 +95,7 @@ void printMenu()
 #    `.   `-'     .'         .'      #
 #      `--.|___.-'`._    _.-'        #
 #          ^          """"           #)" << std::endl;
-    printLines(1, '-');
+    //printLines(1, '-');
     std::cout << "##########" << "1 - Play Game." << "   " << "###########" << std::endl;
     std::cout << "##########" << "2 - View Scores." << " " << "###########" << std::endl;
     std::cout << "##########" << "3 - How to Play." << " " << "###########" << std::endl;
@@ -117,8 +123,8 @@ void Visual()
                 std::cout << "*";
             else
             {
-                bool printTail = false;
                 // PRINT TAIL //
+                bool printTail = false;
                 for(int k = 0; k < nTail; k++)
                 {
                     if(tailX[k] == j && tailY[k] == i)
@@ -184,13 +190,13 @@ void Logic()
     // CHECK OUT OF BOUNDS //
     if(x >= width)
         x = 0;
-    else if(x <= 0)
+    else if(x < 0)
         x = width -1;
-
-    if(y >= width)
+    //
+    if(y >= height)
         y = 0;
-    else if(y <= 0)
-        y = width -1;
+    else if(y < 0)
+        y = height -1;
 
     // TAIL COLLISION //
     for(int i = 0; i < nTail; i++)
@@ -200,11 +206,16 @@ void Logic()
     // GRAB FRUIT //
     if(x==fruitX && y==fruitY)
     {
-        // INCREASES FRAMERATE + SPEED //
+        // INCREASES FRAMERATE //
+        int scoredif = 60;
         if(score > 30 && score < 60)
-            framerate = 64;
-        else if(score >= 60)
-            framerate = 32;
+            framerate = 108;
+        else if(score >= scoredif)
+        {
+            if(framerate >= 30)
+                framerate = framerate - 10;
+            scoredif = scoredif +30;
+        }
         // INC SCORE // SPAWN NEW FRUIT // ADD TAIL //
         score = score + 10;
         fruitX = rand() % width;
@@ -255,7 +266,7 @@ void gameStart()
     gameOver = false;
     dir = STOP;
     x = width / 2;
-    y = width / 2;
+    y = height / 2;
     fruitX = rand() % width;
     fruitY = rand() % height;
     score = 0;
@@ -324,36 +335,28 @@ void showHowto()
 void writeScore(int score, std::string name)
 {
     std::ofstream MyFile("score.txt");
-    MyFile << name << "  -------  " << score;
+    MyFile << name << "   ";
+    MyFile << score;
     MyFile.close();
-}
-
-void getScore()
-{
-    std::ifstream MyFile("score.txt");
-    while (getline (MyFile, scores))
-    {   // Output the text from the file //
-        std::cout << "      " << scores << std::endl;
-    }
 }
 
 void printgameOver()
 {
     system("cls");
-            printLines(6, '#');
-            std::cout << " #########  ++The END++ #############" << std::endl;
-            std::cout << " #########   +SCORE " << score <<"+  ############" << std::endl;
-            printLines(6, '#');
-            printLines(1, ' ');
-            std::cout << "       Enter your name" << std::endl;
-            std::string name;
-            std::cin >> name;
-            writeScore(score, name);
+    printLines(6, '#');
+    std::cout << " #########  ++The END++ #############" << std::endl;
+    std::cout << " #########   +SCORE " << score <<"+  ############" << std::endl;
+    printLines(6, '#');
+    printLines(1, ' ');
+    std::cout << "       Enter your name" << std::endl;
+    framerate = 128;
+    std::string name;
+    std::cin >> name;
+    writeScore(score, name);
 }
 
 int main()
 {
     runMenu();
-
     return 0;
 }
